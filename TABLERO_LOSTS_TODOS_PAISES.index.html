@@ -328,6 +328,11 @@
   <div id="filters-row">
     <input type="text" id="f-text" placeholder="&#128269; Buscar serial, SKU, centro, ubicaci&oacute;n..." oninput="applyFilters()">
     <select id="f-centro" onchange="applyFilters()"><option value="">Todos los centros</option></select>
+    <select id="f-tipo" onchange="applyFilters()">
+      <option value="">Seriado + Insumos</option>
+      <option value="seriado">Solo Seriado</option>
+      <option value="insumo">Solo Insumos</option>
+    </select>
     <select id="f-aging" onchange="applyFilters()">
       <option value="">Todos los aging</option>
       <option value="0-30">&le;30 d&iacute;as</option>
@@ -506,6 +511,7 @@ function applyFilters() {
   const txt = document.getElementById('f-text').value.toLowerCase();
   const centro = document.getElementById('f-centro').value;
   const aging = document.getElementById('f-aging').value;
+  const tipo = document.getElementById('f-tipo').value;
 
   let base = currentTab === 'TODOS' ? RAW : RAW.filter(r => r.pais === currentTab);
 
@@ -519,6 +525,11 @@ function applyFilters() {
       if (aging === '0-30' && r.aging > 30) return false;
       if (aging === '31-90' && (r.aging < 31 || r.aging > 90)) return false;
       if (aging === '90+' && r.aging <= 90) return false;
+    }
+    if (tipo) {
+      const esInsumo = r.serial.toLowerCase().startsWith('lpn');
+      if (tipo === 'insumo' && !esInsumo) return false;
+      if (tipo === 'seriado' && esInsumo) return false;
     }
     return true;
   });
@@ -534,6 +545,7 @@ function resetFilters() {
   document.getElementById('f-text').value = '';
   document.getElementById('f-centro').value = '';
   document.getElementById('f-aging').value = '';
+  document.getElementById('f-tipo').value = '';
   applyFilters();
 }
 
